@@ -72,16 +72,14 @@ CMD  version"  > Dockerfile
 SERVICE_NAME=$(echo "$SERVICE_NAME" | awk '{print tolower($0)}')
 SERVICE_NAME=$(echo "$SERVICE_NAME" | sed s/-/_/g)
 
+DOCKER_REGISTRY_HOST="asia.gcr.io"
+
+DOCKER_IMAGE_NAME="$DOCKER_REGISTRY_HOST/tspv1-188510/$SERVICE_NAME:$BUILD_TAG"
+
 # ## Build Image
-docker build -t $SERVICE_NAME:$BUILD_TAG .
-
-# ## Test Image
-
-# docker run -it --rm $DOCKER_IMAGE_NAME version
+docker build -t $DOCKER_IMAGE_NAME .
 
 # ## Push Image
-
-# echo "Push Image in the cy.docker.dev"
-# docker push $DOCKER_IMAGE_NAME
+ docker push $DOCKER_IMAGE_NAME
 
 
