@@ -18,7 +18,7 @@ if [ ! -d $BUILD_PATH  ]; then
 fi
 
 # Check Golang Image Version
-GOLANG_VERSION="1.11"
+GOLANG_VERSION="1.11.1"
 echo Build Golang Version : $GOLANG_VERSION
 
 
@@ -38,9 +38,9 @@ else
 fi
 
 docker run -it --rm  \
-    -v $HOME/go/src:/go/src \
-    -v $NOWPWD/bin:/go/src/gitlab.com/paganiniplus/$SERVICE_NAME/bin \
-    -w /go/src/gitlab.com/paganiniplus/$SERVICE_NAME \
+    -v $BUILD_PATH:/$SERVICE_NAME \
+    -v $NOWPWD/bin:/$SERVICE_NAME/bin \
+    -w /$SERVICE_NAME \
     -e CGO_ENABLED=0 \
     -e GOOS=linux \
     -e GOARCH=amd64 \
@@ -50,11 +50,6 @@ docker run -it --rm  \
 
 # mv build and copoy config file
 mv $BUILD_PATH/$SERVICE_NAME bin/
-rm -rf ./config
-rm -rf ./routers
-cp -rf $BUILD_PATH/config ./
-mkdir -p ./routers/templates
-cp -rf $BUILD_PATH/routers/templates/* ./routers/templates
 
 # Check build file is exists or not
 if [ -f "bin/$SERVICE_NAME" ]; then
@@ -69,8 +64,6 @@ fi
 "FROM scratch
 MAINTAINER rayli
 ADD ./bin/$SERVICE_NAME /
-ADD ./config /config
-ADD ./routers /routers
 ENTRYPOINT [\"/$SERVICE_NAME\"]
 CMD  version"  > Dockerfile
 
@@ -78,16 +71,15 @@ CMD  version"  > Dockerfile
 SERVICE_NAME=$(echo "$SERVICE_NAME" | awk '{print tolower($0)}')
 SERVICE_NAME=$(echo "$SERVICE_NAME" | sed s/-/_/g)
 
+DOCKER_REGISTRY_HOST="asia.gcr.io"
+
+DOCKER_IMAGE_NAME="$DOCKER_REGISTRY_HOST/tspv1-188510/$SERVICE_NAME:$BUILD_TAG"
+
 # ## Build Image
-docker build -t $SERVICE_NAME:$BUILD_TAG .
+docker build -t $DOCKER_IMAGE_NAME .
 
-# ## Test Image
-
-# docker run -it --rm $DOCKER_IMAGE_NAME version
-
+echo $DOCKER_IMAGE_NAME
 # ## Push Image
-
-# echo "Push Image in the cy.docker.dev"
-# docker push $DOCKER_IMAGE_NAME
+ docker push $DOCKER_IMAGE_NAME
 
 

@@ -18,7 +18,7 @@ if [ ! -d $BUILD_PATH  ]; then
 fi
 
 # Check Golang Image Version
-GOLANG_VERSION="1.11"
+GOLANG_VERSION="1.11.1"
 echo Build Golang Version : $GOLANG_VERSION
 
 
